@@ -1,5 +1,72 @@
-<header>
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True)
+    email = db.Column(db.String(120), unique=True)
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    new_user = User(username=data['username'], email=data['email'])
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "User created!"}), 201
+
+if __name__ == '__main__':
+    app.run(debug=True)<header>
+const express = require('express');
+const multer = require('multer');
+const app = express();
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ storage });
+
+app.post('/upload', upload.single('video'), (req, res) => {
+  res.json({
+    message: "Video uploaded!",
+    path: req.file.path
+  });
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});import openai
+
+# OpenAI Whisper API በመጠቀም ቪዲዮን ወደ ጽሑፍ መለወጥ
+def generate_subtitles(video_path):
+    audio_file = open(video_path, "rb")
+    transcript = openai.Audio.transcribe("whisper-1", audio_file)
+    return transcript['text']
+
+# ምሳሌ አጠቃሚ
+subtitles = generate_subtitles("lecture.mp4")
+print(subtitles)from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# ተጠቃሚ የወደዱትን ቪዲዮ በመሰረት ይለዩ
+user_interests = ["Python Programming", "AI Basics"]
+all_videos = ["Python Tutorial", "Machine Learning Intro", "AI Ethics"]
+
+vectorizer = TfidfVectorizer()
+tfidf_matrix = vectorizer.fit_transform(all_videos + user_interests)
+cosine_sim = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
+
+recommended_video_index = cosine_sim.argmax()
+print(f"Recommended: {all_videos[recommended_video_index]}")
 <!--
   <<< Author notes: Course header >>>
   Read <https://skills.github.com/quickstart> for more information about how to build courses using this template.
